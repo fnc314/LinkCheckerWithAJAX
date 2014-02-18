@@ -19,16 +19,22 @@
 var Callbacks = (function() {
 
   var createSite = function(url, data) {
-       // Make .ajax request here
+      $.ajax({
+        type: "post",
+        url: url,
+        data: data}).done(postSuccessHandler);
+      // Make .ajax request here
   };
 
   var addNewUrlToTable = function(url, httpResponse) {
+    $("#siteTable > tbody").append("<tr><td><a href=" + url + ">" + url + "</a></td><td>" + httpResponse + "</td></tr>");
     // Actually add the url and response code to the table
   };
 
   var postSuccessHandler = function(response) {
       // Call addNewUrlToTable and insert the results
-      addNewUrlToTable('','');
+      // var values = JSON.parse(response);
+      Callbacks.addNewUrlToTable(response.url, response.http_response);
 
   };
 
@@ -38,6 +44,13 @@ var Callbacks = (function() {
 
   var onSubmitSiteClickHandler =  function() {
       var site = $('#siteInput').val();
+      var authParam = $('meta[name=csrf-param]').attr('content');
+      var authToken = $('meta[name=csrf-token]').attr('content');
+      var data = {};
+      data[authParam] = authToken;
+      data.site = {};
+      data.site.url = site;
+      Callbacks.createSite("/sites.json", data);
       
       // We have the site, now call create site
       // to make the request
@@ -63,3 +76,20 @@ $(window).load(function() {
   $('#checkSite').click(Callbacks.onSubmitSiteClickHandler);
 
 });
+
+// data = {}
+// data[authParam]=authToken
+// data[‘site’]={}
+// data.site[‘url’] = “http://www.cnn.com”
+// $.post(“/sites.json”,
+// data)
+
+      
+      // 
+      // data[authParam] = authToken;
+      // data.site = {};
+      // data.site.url = url;
+
+// var success2 = function(data) { movieData = JSON.parse(data);
+// alert(movieData.Title);
+// $("body").prepend("<h1 id=" + movieData.imdbID + ">" + movieData.Title + "</h1>"); };
